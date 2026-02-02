@@ -14,15 +14,23 @@ import SpecialsPage from './pages/SpecialsPage';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(() => {
+    // Check if user has already seen splash in this session
+    return !sessionStorage.getItem('hasSeenSplash');
+  });
 
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
-  }
+  const handleSplashFinish = () => {
+    sessionStorage.setItem('hasSeenSplash', 'true');
+    setShowSplash(false);
+  };
 
   return (
     <ErrorBoundary>
       <ThemeProvider>
+        {/* Splash Screen Overlay - Renders on top of App */}
+        {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+
+        {/* Main App - Renders immediately behind splash */}
         <Router basename={window.RESTAURANT_BASE_URL || '/'}>
           <div className="flex flex-col min-h-screen" data-debug="app-loaded">
             <Header />

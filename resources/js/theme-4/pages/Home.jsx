@@ -14,20 +14,44 @@ import { useRestaurantData } from '../hooks/useRestaurantData';
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const Home = () => {
-    const { restaurant, categories, foods, specials, reviews, loading } = useRestaurantData();
+    const { restaurant, categories, foods, specials, reviews: initialReviews, loading } = useRestaurantData();
     const currency = restaurant?.currency || '$';
 
-    // Fallback if data is not yet loaded
+    // State
     const [selectedFood, setSelectedFood] = useState(null);
     const [galleryIndex, setGalleryIndex] = useState(null);
     const [currentSpecialIndex, setCurrentSpecialIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [imageError, setImageError] = useState(false);
 
-    // Reset error when special changes
+    // Reviews State (Initialize from data + localStorage)
+    const [currentReviews, setCurrentReviews] = useState([]);
+
     useEffect(() => {
-        setImageError(false);
-    }, [currentSpecialIndex]);
+        if (initialReviews) {
+            const savedReviews = JSON.parse(localStorage.getItem('restaurant_reviews') || '[]');
+            // Merge initial and saved, de-dupe by ID just in case
+            const all = [...savedReviews, ...initialReviews].reduce((acc, current) => {
+                const x = acc.find(item => item.id === current.id);
+                if (!x) {
+                    return acc.concat([current]);
+                } else {
+                    return acc;
+                }
+            }, []);
+            // Sort by newness (assuming id is timestamp for new ones, or just reverse order)
+            setCurrentReviews(all.sort((a, b) => b.id - a.id));
+        }
+    }, [initialReviews]);
+
+    const handleAddReview = (newReview) => {
+        const updated = [newReview, ...currentReviews];
+        setCurrentReviews(updated);
+
+        // Persist new reviews to localStorage
+        const existingSaved = JSON.parse(localStorage.getItem('restaurant_reviews') || '[]');
+        localStorage.setItem('restaurant_reviews', JSON.stringify([newReview, ...existingSaved]));
+    };
 
     // Derived state
     const bestSellers = foods ? foods.filter(f => f.bestSelling) : [];
@@ -194,7 +218,7 @@ const Home = () => {
             </section>
 
             {/* Reviews Section */}
-            <ReviewsSection reviews={reviews} />
+            <ReviewsSection reviews={currentReviews} onAddReview={handleAddReview} />
 
             {/* Chef's Special (Highlight Section / Slider) */}
             {/* {currentSpecial && (

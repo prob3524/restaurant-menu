@@ -83,13 +83,14 @@ const Header = () => {
 
                 {/* Right Side: Theme Toggle & User */}
                 <div className="flex-1 flex justify-end items-center gap-4">
-                    {/* <button
+                    <button
                         onClick={toggleTheme}
                         className="p-2 rounded-full bg-cafe-secondary/50 dark:bg-zinc-800 hover:scale-110 active:scale-95 transition-all duration-300 text-cafe-text dark:text-cafe-text-dark"
+                        aria-label="Toggle Theme"
                     >
                         {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                     </button>
-                    <button className="p-2 rounded-full bg-cafe-primary/20 hover:bg-cafe-primary/30 transition-colors text-cafe-primary">
+                    {/* <button className="p-2 rounded-full bg-cafe-primary/20 hover:bg-cafe-primary/30 transition-colors text-cafe-primary">
                         <User size={20} />
                     </button> */}
                 </div>
